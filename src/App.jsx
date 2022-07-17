@@ -1,57 +1,47 @@
-import React, { Component } from "react";
-import  {ContactForm}  from "components/ContactForm/ContactForm";
+import { useState, useEffect  } from "react";
+import { ContactForm } from "components/ContactForm/ContactForm";
 import { Filter } from "components/Filter/Filter";
 import { ContactList } from "components/ContactList/ContactList";
 import { nanoid } from 'nanoid';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  }
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
   // завантажуємо масив контактів з локал сториз
-  componentDidMount() {
-    const contacts = JSON.parse(localStorage.getItem("contacts"));
-    if (contacts) {
-      this.setState({ contacts: contacts })
+  useEffect(() => {
+    const contactsStore = JSON.parse(localStorage.getItem("contacts"));
+    if (contactsStore) {
+      setContacts(contactsStore);
     };
-  }
+  }, []);
 
   // записуємо змінені контакти до локал сторіз
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem("contacts", JSON.stringify(this.state.contacts))
-    }
-  }
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contacts))
+  }, [contacts]);
 
   // обробляємо додавання нового контакту
-  addContact = (formName, formNumber) => {
-    this.setState(prevState => ({
-    contacts: [{ id: nanoid(), name: formName, number: formNumber }, ...prevState.contacts],
-    }));
+  const addContact = (formName, formNumber) => {
+    setContacts([{ id: nanoid(), name: formName, number: formNumber }, ...contacts]
+    );
   }
 
   // обробляємо кожне натискання в полі "фільтр"
-  handleInputFilter = e => {
-    this.setState({ [e.currentTarget.name]: e.currentTarget.value });
+  const handleInputFilter = e => {
+    setFilter(e.currentTarget.value);
   }
 
   // обробляємо натискання "видалити контакт"
-  deleteContact = (contactId) => {
-    this.setState(prevState => (
-      {contacts: prevState.contacts.filter(contact => contact.id !== contactId)}
-    )) 
+  const deleteContact = (contactId) => {
+    setContacts(prev => (prev.filter(contact => contact.id !== contactId))) 
   }
 
-  render() {
-    const { filter, contacts } = this.state;
-
-    return (
+  return (
       <div>
 {/* форма им'я-телефон */}
         <ContactForm
-          onSubmit={this.addContact}
+          onSubmit={addContact}
           contacts={contacts}
         />
  
@@ -59,19 +49,16 @@ class App extends Component {
 {/* форма фільтру */}
         <Filter
           value={filter}
-          onChange={this.handleInputFilter}
+          onChange={handleInputFilter}
         />
 
 {/* виводить повний список або отфільтровані контакти */}
         <ContactList
           contacts={contacts}
           filter={filter}
-          onDeleteContact={this.deleteContact}
+          onDeleteContact={deleteContact}
         />
         
       </div>
     )
-  }
 }
-
-export default App;
