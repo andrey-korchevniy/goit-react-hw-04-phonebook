@@ -5,8 +5,10 @@ import { ContactList } from "components/ContactList/ContactList";
 import { nanoid } from 'nanoid';
 
 export const App = () => {
-  const [contacts, setContacts] = useState(() => { return JSON.parse(localStorage.getItem("contacts")) ?? [] });
+  const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
+
+  useEffect(() => { JSON.parse(localStorage.getItem("contacts")) }, [])
 
   // записуємо змінені контакти до локал сторіз
   useEffect(() => {
